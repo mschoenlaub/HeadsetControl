@@ -431,6 +431,7 @@ struct DiscoveredDevice {
     std::vector<FeatureRequest> feature_requests;
     std::wstring vendor_name;
     std::wstring product_name;
+    bool metadata_queried = false;
 
     [[nodiscard]] uint16_t vendorId() const
     {
@@ -513,6 +514,23 @@ std::vector<DiscoveredDevice> discoverDevices(const Options& opts)
 // Feature handling
 // ============================================================================
 
+/**
+ * @brief Let the device refine the product name once it is open.
+ *
+ * A device may know more than its USB strings, e.g. which headset is currently
+ * paired to a generic dongle. The default getMetadata() returns the HID strings,
+ * so devices without such knowledge are unaffected.
+ */
+static void refineProductName(DiscoveredDevice& dev, hid_device* handle)
+{
+    if (dev.metadata_queried)
+        return;
+    dev.metadata_queried = true;
+
+    if (auto meta = dev.device->getMetadata(handle); meta && !meta->product.empty())
+        dev.product_name = std::wstring(meta->product.begin(), meta->product.end());
+}
+
 hid_device* connectForCapability(HIDConnection& conn, const HIDDevice* device, uint16_t product_id, capabilities cap)
 {
     auto detail   = device->getCapabilityDetail(cap);
@@ -584,6 +602,7 @@ FeatureResult handleFeature(DiscoveredDevice& dev, capabilities cap, const Featu
         if (!handle) {
             return make_error(-1, "Could not open device");
         }
+        refineProductName(dev, handle);
     }
 
     // Execute via handler registry (no more giant switch!)
