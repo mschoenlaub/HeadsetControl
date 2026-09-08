@@ -234,6 +234,10 @@ void testLookupJabraLink390()
     ASSERT_TRUE((device->getCapabilities() & B(CAP_LIGHTS)) != 0, "Link 390 should expose lights capability");
     ASSERT_TRUE((device->getCapabilities() & B(CAP_INACTIVE_TIME)) != 0, "Link 390 should expose inactive time capability");
 
+    auto* flex = registry.getDevice(0x0b0e, 0x2519);
+    ASSERT_NOT_NULL(flex, "Evolve2 65 Flex (USB) should be found");
+    ASSERT_EQ(device->getCapabilities(), flex->getCapabilities(), "Dongle and USB headset share the GNP feature set");
+
     std::cout << "    PASS" << std::endl;
 }
 
