@@ -29,6 +29,7 @@
 #include "hid_utility.hpp"
 #include "output.hpp"
 #include "result_types.hpp"
+#include "string_utils.hpp"
 #include "utility.hpp"
 #include "version.h"
 
@@ -528,7 +529,7 @@ static void refineProductName(DiscoveredDevice& dev, hid_device* handle)
     dev.metadata_queried = true;
 
     if (auto meta = dev.device->getMetadata(handle); meta && !meta->product.empty())
-        dev.product_name = std::wstring(meta->product.begin(), meta->product.end());
+        dev.product_name = headsetcontrol::string_to_wstring(meta->product);
 }
 
 hid_device* connectForCapability(HIDConnection& conn, const HIDDevice* device, uint16_t product_id, capabilities cap)
