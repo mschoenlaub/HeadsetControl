@@ -30,6 +30,8 @@ public:
         return "Jabra Link 390 (paired headset)"sv;
     }
 
+    // Windows is left out because it is untested, not because the protocol needs
+    // anything different there: getCapabilityDetail() reports usagepage/usageid.
     constexpr uint8_t getSupportedPlatforms() const override
     {
         return PLATFORM_LINUX | PLATFORM_MACOS;
